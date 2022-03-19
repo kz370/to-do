@@ -3,14 +3,17 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, Pressable } from '
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function AddTodos({ navigation }) {
+export default function AddTodos({ navigation, route }) {
+    const adjustString = (string) => {
+        return +string < 10 ? `0${string}` : string
+    }
     const newDate = new Date()
     const [date, setDate] = useState({
-        day: newDate.getDate() < 10 ? `0${newDate.getDate()}` : newDate.getDate(),
-        month: newDate.getMonth() + 1 < 10 ? `0${newDate.getMonth() + 1}` : newDate.getMonth() + 1,
+        day: adjustString(newDate.getDate()),
+        month: adjustString(newDate.getMonth() + 1),
         year: newDate.getFullYear(),
-        hour: newDate.getHours() < 10 ? `0${newDate.getHours()}` : newDate.getHours(),
-        minute: newDate.getMinutes() < 10 ? `0${newDate.getMinutes()}` : newDate.getMinutes(),
+        hour: adjustString(newDate.getHours()),
+        minute: adjustString(newDate.getMinutes()),
         AmPm: newDate.hour >= 12 ? "PM" : "AM"
     });
     const [mode, setMode] = useState('date');
@@ -23,8 +26,8 @@ export default function AddTodos({ navigation }) {
                 setDate(prev => {
                     return {
                         ...prev,
-                        day: currentDate.getDate() < 10 ? `0${currentDate.getDate()}` : currentDate.getDate(),
-                        month: currentDate.getMonth() + 1 < 10 ? `0${currentDate.getMonth() + 1}` : currentDate.getMonth() + 1,
+                        day: adjustString(currentDate.getDate()),
+                        month: adjustString(currentDate.getMonth() + 1),
                         year: currentDate.getFullYear(),
                     }
                 });
@@ -33,8 +36,8 @@ export default function AddTodos({ navigation }) {
                 setDate(prev => {
                     return {
                         ...prev,
-                        hour: currentDate.getHours() < 10 ? `0${currentDate.getHours()}` : currentDate.getHours(),
-                        minute: currentDate.getMinutes() < 10 ? `0${currentDate.getMinutes()}` : currentDate.getMinutes(),
+                        hour: adjustString(currentDate.getHours()),
+                        minute: adjustString(currentDate.getMinutes()),
                         AmPm: currentDate.hour >= 12 ? "PM" : "AM"
                     }
                 });
@@ -54,7 +57,7 @@ export default function AddTodos({ navigation }) {
 
     const sumbitForm = () => {
         const newDate = `${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute} ${date.AmPm}`
-        navigation.navigate("Pending",{newTodo:{ date: newDate, todo: todo, type: "pending" }})
+        navigation.navigate("Pending", { newTodo: { date: newDate, todo: todo, status: "pending" } })
     }
 
 
@@ -62,7 +65,7 @@ export default function AddTodos({ navigation }) {
         <View style={{ flex: 1 }}>
             <View style={[s.container]}>
                 <View style={[s.date]}>
-                    <Text style={[s.txt]}>selected: {`${date.day}/${date.month}/${date.year}   ${date.hour > 12 ? date.hour - 12 : date.hour}:${date.minute} ${date.AmPm}`}</Text>
+                    <Text style={[s.txt]}>selected: {`${date.day}/${date.month}/${date.year}  ${date.hour > 12 ? adjustString(date.hour - 12) : date.hour}:${date.minute} ${date.AmPm}`}</Text>
                     <View style={[s.dateChanger]}>
                         <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
                             <View style={[s.centerContent]}>
@@ -75,7 +78,6 @@ export default function AddTodos({ navigation }) {
                     </View>
                     {show && (
                         <DateTimePicker
-                            testID="dateTimePicker"
                             value={new Date()}
                             mode={mode}
                             is24Hour={true}
@@ -89,7 +91,7 @@ export default function AddTodos({ navigation }) {
                         value={todo}
                         style={s.input}
                         onChangeText={(e) => setTodo(e)}
-                        placeholder="useless placeholder"
+                        placeholder="add new todo"
 
                     />
                 </View>

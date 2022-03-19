@@ -6,6 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import StackNav from './components/Navigator/Stack';
 import ToDo from './components/Screen/ToDo';
 import AddTodos from './components/Screen/AddTodos';
+import EditToDo from './components/Screen/EditTodo';
 
 
 const StackScreen = [
@@ -18,7 +19,12 @@ const StackScreen = [
    key: 2,
    name: "Add Todo",
    component: AddTodos,
- }
+ },
+ {
+  key: 3,
+  name: "Edit Todo",
+  component: EditToDo,
+}
 ]
 
 export default function App() {

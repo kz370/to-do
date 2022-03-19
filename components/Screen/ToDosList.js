@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet,TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 
 export default function ToDo({ navigation, route }) {
     const params = route.params || []
@@ -32,9 +32,9 @@ export default function ToDo({ navigation, route }) {
                     <Text style={[s.txt]}>
                         {item.date}
                     </Text>
-                    <TouchableOpacity onPress={()=>{console.log(key)}}>
+                    <TouchableOpacity onPress={() => { navigation.navigate('Edit Todo',{item:item,key:key}) }}>
                         <View style={[s.centerContent]}>
-                            <Ionicons name="trash" size={24} color="black" />
+                            <FontAwesome name="edit" size={24} color="blue" />
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -71,9 +71,9 @@ const s = StyleSheet.create({
         fontSize: 16
     },
     todo: {
-        flexDirection:'row',
-        justifyContent:'space-evenly',
-        alignItems:'center',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
         margin: 10,
         borderColor: 'skyblue',
         borderWidth: 1,
