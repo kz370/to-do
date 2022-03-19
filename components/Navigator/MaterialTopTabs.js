@@ -4,19 +4,13 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 const MaterialTopTab = createMaterialTopTabNavigator();
 
 export default function MyMaterialTopTab(props) {
+    const addTodo = (e) => {
+        props.addTodo(e)
+    }
     return (
-        <MaterialTopTab.Navigator
-            screenOptions={{
-                tabBarLabelStyle: { fontSize: 12 },
-                tabBarItemStyle: { width: 100 },
-                tabBarStyle: { backgroundColor: 'powderblue' },
-            }}
-            tabBarPosition={props.tabBarPosition||'bottom'}
-        >
-            {props.screen.map((screen) =>
-            (
-                <MaterialTopTab.Screen key={screen.key} name={screen.name} component={screen.component} initialParams={screen.params} />
-            )
+        <MaterialTopTab.Navigator>
+            {props.screen.map((screen) => (
+                <MaterialTopTab.Screen key={screen.key} name={screen.name} component={screen.component} initialParams={{ screen: screen.params, addTodo: (e) => { addTodo(e) } }} />)
             )}
         </MaterialTopTab.Navigator>
     );

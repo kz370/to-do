@@ -1,38 +1,33 @@
-import Page from './Page'
+import ToDoList from './ToDosList'
 
-const screens = [
-    {
+export const ToDoScreen = (pendingList, completedList, overdueList) => {
+  return [
+     {
       key: 1,
-      name: "Home",
-      component: Page,
+      name: "Pending",
+      component: ToDoList,
       params: {
-        title: 'Home'
+        title: 'Pending',
+        list: pendingList
       }
     },
-    {
+     {
       key: 2,
-      name: "Home2",
-      component: Page,
+      name: "Completed",
+      component: ToDoList,
       params: {
-        title: 'Home2'
+        title: 'Completed',
+        list: completedList
       }
     },
     {
       key: 3,
-      name: "Home3",
-      component: Page,
+      name: "Overdue",
+      component: ToDoList,
       params: {
-        title: 'Home3'
-      }
-    },
-    {
-      key: 4,
-      name: "Home4",
-      component: Page,
-      params: {
-        title: 'Home4'
+        title: 'Overdue',
+        list: overdueList
       }
     }
   ]
-
-export default screens
+}

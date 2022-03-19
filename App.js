@@ -1,22 +1,31 @@
 import 'react-native-gesture-handler';//for navigation
-import React from 'react';
-import { View } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text } from 'react-native';
 import Constants from 'expo-constants';
 import { NavigationContainer } from '@react-navigation/native';
-// import Nav from './components/Navigator/Stack'
-// import Nav from './components/Navigator/NativeStack'
-// import Nav from './components/Navigator/Drawer'
-// import Nav from './components/Navigator/MaterialBottomTabs'
-import Nav from './components/Navigator/MaterialTopTabs'
-// import Nav from './components/Navigator/BottomTabs'
+import StackNav from './components/Navigator/Stack';
+import ToDo from './components/Screen/ToDo';
+import AddTodos from './components/Screen/AddTodos';
 
-import screens from './components/Screen/Screens'
+
+const StackScreen = [
+  {
+   key: 1,
+   name: "Todo",
+   component: ToDo,
+ },
+  {
+   key: 2,
+   name: "Add Todo",
+   component: AddTodos,
+ }
+]
 
 export default function App() {
   return (
     <NavigationContainer >
       <View style={[{ paddingTop: Constants.statusBarHeight }]}></View>
-      <Nav screen={screens} tabBarPosition="top" />
+      <StackNav screen={StackScreen} default={"Todo"}/>
     </NavigationContainer>
   );
 }
