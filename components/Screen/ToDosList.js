@@ -1,30 +1,85 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet,TouchableOpacity } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons'; 
 
+export default function ToDo({ navigation, route }) {
+    const params = route.params || []
+    const bgColor = params.bgcolor
+    const [todosList, setTodosList] = useState(params.list)
 
-export default function ToDo({navigation, route }) {
-    const params = route.params.screen || []
-
-    if(route.params.addTodos&& params.title === 'Pending'){
-        const todos = route.params.addTodos
-        navigation.setParams({screen:params,addTodos: null});
-        route.params.addTodo(todos)
-    }
+    useEffect(() => {
+        if (route.name === "Pending" && route.params.newTodo) {
+            const newTodo = route.params.newTodo
+            setTodosList(prev => ([...prev, newTodo]))
+            navigation.dispatch(
+                CommonActions.navigate({
+                    name: 'Pending',
+                    params: null,
+                })
+            );
+        }
+    }, [route.params])
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'skyblue' }}>
-            {params.list.map((item, key) =>
+        <ScrollView style={[s.container, { backgroundColor: bgColor }]}>
+            {todosList.map((item, key) =>
             (
-                <View key={key} style={{ backgroundColor: 'wheat', margin: 10, borderRadius: 10 }}>
-                    <Text style={{ color: "black", fontSize: 30, padding: 10 }}>
+                <View key={key} style={[s.todo]}>
+                    <Text style={[s.txt]}>
                         {item.todo}
                     </Text>
-                    <Text style={{ color: "black", fontSize: 30, padding: 10 }}>
+                    <Text style={[s.txt]}>
                         {item.date}
                     </Text>
+                    <TouchableOpacity onPress={()=>{console.log(key)}}>
+                        <View style={[s.centerContent]}>
+                            <Ionicons name="trash" size={24} color="black" />
+                        </View>
+                    </TouchableOpacity>
                 </View>
             )
             )}
-        </View>
+        </ScrollView>
     )
 }
+
+
+const s = StyleSheet.create({
+    centerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20
+    },
+    container: {
+        flex: 1,
+        padding: 15,
+    },
+    date: {
+        margin: 10,
+        borderColor: 'skyblue',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+    },
+    txt: {
+        textAlign: "left",
+        padding: 10,
+        color: "black",
+        fontSize: 16
+    },
+    todo: {
+        flexDirection:'row',
+        justifyContent:'space-evenly',
+        alignItems:'center',
+        margin: 10,
+        borderColor: 'skyblue',
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+        backgroundColor: 'white',
+    },
+});

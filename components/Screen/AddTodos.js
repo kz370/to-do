@@ -53,7 +53,8 @@ export default function AddTodos({ navigation }) {
     };
 
     const sumbitForm = () => {
-        navigation.navigate('Pending', {addTodos:{ date: date, todo: todo }})
+        const newDate = `${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute} ${date.AmPm}`
+        navigation.navigate("Pending",{newTodo:{ date: newDate, todo: todo, type: "pending" }})
     }
 
 

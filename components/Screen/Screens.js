@@ -8,7 +8,8 @@ export const ToDoScreen = (pendingList, completedList, overdueList) => {
       component: ToDoList,
       params: {
         title: 'Pending',
-        list: pendingList
+        list: pendingList,
+        bgcolor:'yellow'
       }
     },
      {
@@ -17,7 +18,8 @@ export const ToDoScreen = (pendingList, completedList, overdueList) => {
       component: ToDoList,
       params: {
         title: 'Completed',
-        list: completedList
+        list: completedList,
+        bgcolor:'lawngreen'
       }
     },
     {
@@ -26,7 +28,8 @@ export const ToDoScreen = (pendingList, completedList, overdueList) => {
       component: ToDoList,
       params: {
         title: 'Overdue',
-        list: overdueList
+        list: overdueList,
+        bgcolor:'mediumvioletred'
       }
     }
   ]

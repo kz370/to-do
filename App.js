@@ -11,7 +11,7 @@ import AddTodos from './components/Screen/AddTodos';
 const StackScreen = [
   {
    key: 1,
-   name: "Todo",
+   name: "TodoList",
    component: ToDo,
  },
   {
@@ -25,7 +25,7 @@ export default function App() {
   return (
     <NavigationContainer >
       <View style={[{ paddingTop: Constants.statusBarHeight }]}></View>
-      <StackNav screen={StackScreen} default={"Todo"}/>
+      <StackNav screen={StackScreen} default={"TodoList"}/>
     </NavigationContainer>
   );
 }
