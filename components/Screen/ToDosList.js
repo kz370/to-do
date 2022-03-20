@@ -1,38 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { CommonActions } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 
-export default function ToDo({ navigation, route }) {
-    const params = route.params || []
-    const bgColor = params.bgcolor
-    const [todosList, setTodosList] = useState(params.list)
-
-    useEffect(() => {
-        if (route.name === "Pending" && route.params.newTodo) {
-            const newTodo = route.params.newTodo
-            setTodosList(prev => ([...prev, newTodo]))
-            navigation.dispatch(
-                CommonActions.navigate({
-                    name: 'Pending',
-                    params: null,
-                })
-            );
-        }
-    }, [route.params])
+export default function ToDo({navigation,route,toDosList,bgColor}) {
 
     return (
         <ScrollView style={[s.container, { backgroundColor: bgColor }]}>
-            {todosList.map((item, key) =>
+            {toDosList.map((item) =>
             (
-                <View key={key} style={[s.todo]}>
+                <View key={item.key} style={[s.todo]}>
                     <Text style={[s.txt]}>
                         {item.todo}
                     </Text>
                     <Text style={[s.txt]}>
                         {item.date}
                     </Text>
-                    <TouchableOpacity onPress={() => { navigation.navigate('Edit Todo',{item:item,key:key}) }}>
+                    <TouchableOpacity onPress={() => { navigation.navigate('EditToDo', { item: item, key: item.key }) }}>
                         <View style={[s.centerContent]}>
                             <FontAwesome name="edit" size={24} color="blue" />
                         </View>

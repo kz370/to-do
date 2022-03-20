@@ -10,6 +10,7 @@
   "dependencies": {
     "@expo/vector-icons": "^12.0.0",
     "@react-native-community/datetimepicker": "3.5.2",
+    "@react-native-picker/picker": "2.1.0",
     "@react-navigation/bottom-tabs": "*",
     "@react-navigation/drawer": "*",
     "@react-navigation/material-bottom-tabs": "*",

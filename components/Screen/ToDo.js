@@ -1,30 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
-import TopMaterialNav from '../Navigator/MaterialTopTabs'
-import { ToDoScreen } from './Screens';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { CommonActions } from '@react-navigation/native';
+import ToDoList from './ToDosList'
 
-export default function ToDo({ navigation }) {
-    const [toDoList, settoDoList] = useState([])
-    const [pendingList, setPendingList] = useState([])
-    const [completedList, setCompletedList] = useState([])
-    const [overdueList, setOverdueList] = useState([])
-    const [toDosNav, setTodosNav] = useState(ToDoScreen(pendingList, completedList, overdueList))
+const MaterialTopTab = createMaterialTopTabNavigator();
+
+export default function ToDo({ navigation, route }) {
+    const [toDoList, setToDoList] = useState([])
+
+    const pending = toDoList.filter(toDo=>toDo.status == 'pending')
+    const complete = toDoList.filter(toDo=>toDo.status == 'complete')
+    const overdue = toDoList.filter(toDo=>toDo.status == 'overdue')
 
     useEffect(() => {
-        const pending = toDoList.filter(item => item.status == "pending");
-        const complete = toDoList.filter(item => item.status == "complete");
-        const overdue = toDoList.filter(item => item.status == "overdue");
-        setPendingList(pending)
-        setCompletedList(complete)
-        setOverdueList(overdue)
-        setTodosNav(ToDoScreen(pendingList, completedList, overdueList))
-    },[toDoList])
-
+        if (route.params) {
+            if (route.params.newTodo) {
+                const newTodo = route.params.newTodo
+                if (route.params.method == 'add') {
+                    setToDoList(prev => { return [...prev, newTodo] })
+                    
+                } else {
+                    setToDoList(prev => ([prev.filter(item => item.key != newTodo.key)]))
+                    setToDoList(prev => ([...prev, newTodo]))
+                }
+            }
+            navigation.dispatch(
+                CommonActions.navigate({
+                    name: route.name,
+                    params: "ToDo",
+                })
+            );
+        }
+    }, [route.params])
 
     return (
         <View style={{ flex: 1 }}>
-            <TopMaterialNav screen={toDosNav} />
-            <TouchableOpacity onPress={() => { navigation.navigate('Add Todo',{lastKey:toDoList.length}) }} disabled={false}>
+            <MaterialTopTab.Navigator>
+                <MaterialTopTab.Screen name="pending">
+                {props => <ToDoList {...props} toDosList={pending} bgColor='yellow' />}
+                </MaterialTopTab.Screen>
+                <MaterialTopTab.Screen name="complete">
+                {props => <ToDoList {...props} toDosList={complete} bgColor='lawngreen' />}
+                </MaterialTopTab.Screen>
+                <MaterialTopTab.Screen name="overdue">
+                {props => <ToDoList {...props} toDosList={overdue} bgColor='Overdue' />}
+                </MaterialTopTab.Screen>
+            </MaterialTopTab.Navigator>
+
+            <TouchableOpacity onPress={() => { navigation.navigate('AddToDo', { lastKey: toDoList.length }) }} disabled={false}>
                 <Text style={{ fontSize: 20, textAlign: 'center', paddingHorizontal: 22, paddingVertical: 15 }}>
                     Add new To-do
                 </Text>
