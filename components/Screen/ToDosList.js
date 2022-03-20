@@ -6,7 +6,7 @@ import { Feather } from '@expo/vector-icons';
 export default function ToDo({ navigation, route, toDosList, bgColor }) {
     const [toDo, setToDo] = useState([])
     const [checked, setChecked] = useState([])
-    const [checkBtn, setCheckBtn] = useState('Check all')
+    const [editKey, setEditKey] = useState({ key: null, disabled: false })
 
     useEffect(() => {
         setToDo(toDosList.map(item => ({ ...item, checked: false })))
@@ -18,7 +18,13 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
         )
     }
     useEffect(() => {
-        setChecked(toDo.filter(item => item.checked).map(item => item.key))
+        const nextList = toDo.filter(item => item.checked).map(item => item.key)
+        setChecked(nextList)
+        if (nextList.length == 1) {
+            setEditKey({ key: nextList[0], disabled: false })
+        } else {
+            setEditKey({ key: null, disabled: true })
+        }
     }, [toDo])
 
     const deleteSelected = () => {
@@ -30,9 +36,12 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
     }
     const checkAll = () => {
         setToDo(prev => prev.map(item => ({ ...item, checked: !item.checked })))
-        setCheckBtn(prev=> prev=='Check all'?"Uncheck all":"Check all")
     }
 
+    const editSelected = () => {
+        const item = toDo.filter(item => item.key == editKey.key)
+        navigation.navigate('EditToDo', { item: item[0], key: editKey })
+    }
     return (
         <View style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }} style={[s.container, { backgroundColor: bgColor, flex: 1 }]}>
@@ -48,16 +57,6 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
                             </Text>
                         </View>
                         <View>
-                            <TouchableOpacity onPress={() => { navigation.navigate('EditToDo', { item: item, key: item.key }) }}>
-                                <View style={[s.centerContent]}>
-                                    <FontAwesome name="edit" size={24} color="blue" />
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { navigation.navigate('ToDo', { method: 'delete', key: item.key }) }}>
-                                <View style={[s.centerContent]}>
-                                    <FontAwesome name="trash-o" size={24} color="black" />
-                                </View>
-                            </TouchableOpacity>
                             <TouchableOpacity onPress={() => { checkItem(item.key) }}>
                                 <View style={[s.centerContent]}>
                                     <Feather name={item.checked ? 'check-square' : 'square'} size={24} color="black" />
@@ -69,6 +68,16 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
                 )}
             </ScrollView>
             <View style={{ flex: .05, flexDirection: 'row', justifyContent: 'space-around', }}>
+                <TouchableOpacity style={[s.btns, { backgroundColor: !editKey.disabled ? "skyblue" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
+                    <View style={[s.btnsTxtContainer]}>
+                        <Text style={{ marginHorizontal: 15 }}>
+                            edit
+                        </Text>
+                        <Text style={{ textAlign: 'center' }}>
+                            <FontAwesome name="edit" size={24} color="blue" />
+                        </Text>
+                    </View>
+                </TouchableOpacity>
                 <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "red" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
                     <View style={[s.btnsTxtContainer]}>
                         <Text style={{ marginHorizontal: 15 }}>
@@ -79,21 +88,21 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
                         </Text>
                     </View>
                 </TouchableOpacity>
-                {route.name!='complete'&&
-                <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "green" : '#E8E8E8' }]} onPress={completeSelected} disabled={!checked.length}>
-                    <View style={[s.btnsTxtContainer]}>
-                        <Text style={{ marginHorizontal: 15 }}>
-                            Complete
-                        </Text>
-                        <Text style={{ textAlign: 'center' }}>
-                            <Feather name='check-square' size={24} color="black" />
-                        </Text>
-                    </View>
-                </TouchableOpacity>}
-                <TouchableOpacity style={[s.btns, { backgroundColor: '#BEBEBE' }]} onPress={checkAll}>
+                {route.name != 'complete' &&
+                    <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "green" : '#E8E8E8' }]} onPress={completeSelected} disabled={editKey.disabled}>
+                        <View style={[s.btnsTxtContainer]}>
+                            <Text style={{ marginHorizontal: 15, color: "black" }}>
+                                Complete
+                            </Text>
+                            <Text style={{ textAlign: 'center' }}>
+                                <Feather name='check-square' size={24} color="black" />
+                            </Text>
+                        </View>
+                    </TouchableOpacity>}
+                <TouchableOpacity style={[s.btns, { backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
                     <View style={[s.btnsTxtContainer]}>
                         <Text style={{ marginHorizontal: 15, color: 'black' }}>
-                            {checkBtn}
+                            {checked.length ? "Uncheck all" : "Check all"}
                         </Text>
                         <Text style={{ textAlign: 'center' }}>
                             <Feather name='check' size={24} color="black" />
