@@ -100,14 +100,6 @@ export default function AddTodos({ navigation, route }) {
                     </Text>
                 </Pressable>
             </View>
-            <TouchableOpacity onPress={() => { navigation.goBack() }} style={s.goBackBtn}>
-                <View style={[s.centerContent]}>
-                    <Text style={[s.txt, s.goBackTxt]}>
-                        <FontAwesome name="arrow-left" size={20} color="white" />
-                    </Text>
-                    <Text style={[s.txt, s.goBackTxt]}>go back</Text>
-                </View>
-            </TouchableOpacity>
         </View>
     )
 }

@@ -9,9 +9,9 @@ const MaterialTopTab = createMaterialTopTabNavigator();
 export default function ToDo({ navigation, route }) {
     const [toDoList, setToDoList] = useState([])
 
-    const pending = toDoList.filter(toDo=>toDo.status == 'pending')
-    const complete = toDoList.filter(toDo=>toDo.status == 'complete')
-    const overdue = toDoList.filter(toDo=>toDo.status == 'overdue')
+    const pending = toDoList.filter(toDo => toDo.status == 'pending')
+    const complete = toDoList.filter(toDo => toDo.status == 'complete')
+    const overdue = toDoList.filter(toDo => toDo.status == 'overdue')
 
     useEffect(() => {
         if (route.params) {
@@ -19,7 +19,7 @@ export default function ToDo({ navigation, route }) {
                 const newTodo = route.params.newTodo
                 if (route.params.method == 'add') {
                     setToDoList(prev => { return [...prev, newTodo] })
-                    
+
                 } else {
                     setToDoList(prev => ([prev.filter(item => item.key != newTodo.key)]))
                     setToDoList(prev => ([...prev, newTodo]))
@@ -37,14 +37,14 @@ export default function ToDo({ navigation, route }) {
     return (
         <View style={{ flex: 1 }}>
             <MaterialTopTab.Navigator>
-                <MaterialTopTab.Screen name="pending">
-                {props => <ToDoList {...props} toDosList={pending} bgColor='yellow' />}
+                <MaterialTopTab.Screen name="pending" options={{ title: `pending ${pending.length}` }}>
+                    {props => <ToDoList {...props} toDosList={pending} title="test" bgColor='yellow' />}
                 </MaterialTopTab.Screen>
-                <MaterialTopTab.Screen name="complete">
-                {props => <ToDoList {...props} toDosList={complete} bgColor='lawngreen' />}
+                <MaterialTopTab.Screen name="complete" options={{ title: `complete ${complete.length}` }}>
+                    {props => <ToDoList {...props} toDosList={complete} bgColor='lawngreen' />}
                 </MaterialTopTab.Screen>
-                <MaterialTopTab.Screen name="overdue">
-                {props => <ToDoList {...props} toDosList={overdue} bgColor='Overdue' />}
+                <MaterialTopTab.Screen name="overdue" options={{ title: `overdue ${overdue.length}` }}>
+                    {props => <ToDoList {...props} toDosList={overdue} bgColor='mediumvioletred' />}
                 </MaterialTopTab.Screen>
             </MaterialTopTab.Navigator>
 
