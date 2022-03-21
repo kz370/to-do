@@ -3,12 +3,33 @@ import { View, TouchableOpacity, Text } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { CommonActions } from '@react-navigation/native';
 import ToDoList from './ToDosList'
+import * as SQLite from 'expo-sqlite';
+import * as FileSystem from 'expo-file-system';
+import { Asset } from 'expo-asset';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
+const db = SQLite.openDatabase('database.db');
+
+
+
 export default function ToDo({ navigation, route }) {
     const [toDoList, setToDoList] = useState([])
-    const [lastKey, setLastKey] = useState(0)
+    const [val, setVal] = useState(true)
+    useEffect(() => {
+        if (val) {
+            db.transaction((tx) => {
+                tx.executeSql(`create table if not exists todos (id integer primary key,todo text,date text,status text)`);
+            })
+            db.transaction((tx) => {
+                tx.executeSql(
+                    `select * from todos;`, null, (_, { rows: { _array } }) => { setToDoList(_array) }, (_, err) => { console.log("err=>", err) }
+                );
+            })
+            setToDoList(prev => (prev.map(todo => ({ ...todo, checked: false }))))
+            setVal(false)
+        }
+    })
 
     const pending = toDoList.filter(toDo => toDo.status == 'pending')
     const complete = toDoList.filter(toDo => toDo.status == 'complete')
@@ -19,19 +40,53 @@ export default function ToDo({ navigation, route }) {
             if (route.params.newTodo) {
                 const newTodo = route.params.newTodo
                 if (route.params.method == 'add') {
-                    setToDoList(prev => { return [...prev, newTodo] })
+                    db.transaction((tx) => {
+                        tx.executeSql(
+                            `insert into todos (todo, date, status) values(?,?,?);`,
+                            [newTodo.todo, newTodo.date, newTodo.status],
+                            false, (_, err) => {
+                                console.log("err=>", err)
+                            }
+                        );
+                    })
+                    setVal(true)
                 } if (route.params.method == 'update') {
-                    const newArray = toDoList.map(item => item.key !== newTodo.key ? item : newTodo)
-                    setToDoList(newArray)
+                    db.transaction((tx) => {
+                        tx.executeSql(
+                            `update todos set todo=(?), date=(?), status=(?) where id=(?);`,
+                            [newTodo.todo, newTodo.date, newTodo.status, newTodo.id],
+                            false, (_, err) => {
+                                console.log("err=>", err)
+                            }
+                        );
+                    })
+                    setVal(true)
                 }
-            } else if (route.params.method == 'delete') {
-                setToDoList(prev => (prev.filter(item => item.key != route.params.key)))
             }
-            else if (route.params.method == 'deleteMultiple') {
-                setToDoList(prev => (prev.filter(item => !route.params.keys.includes(item.key))))
+            else if (route.params.method == 'delete') {
+                const idValues = `(${route.params.ids.toString()})`
+                db.transaction((tx) => {
+                    tx.executeSql(
+                        `delete from todos where id in ${idValues};`,
+                        null,
+                        false, (_, err) => {
+                            console.log("err=>", err)
+                        }
+                    );
+                })
+                setVal(true)
             } else if (route.params.method == 'completeMultiple') {
-                const newArray = toDoList.map(item => route.params.keys.includes(item.key) ? { ...item, status: 'complete' } : item)
-                setToDoList(newArray)
+                const idValues = `(${route.params.ids.toString()})`
+                db.transaction((tx) => {
+                    tx.executeSql(
+                        `update todos set status=(?) where id in ${idValues}`,
+                        ['complete'],
+                        false, (_, err) => {
+                            console.log("err=>", err)
+                        }
+                    );
+                })
+                setVal(true)
             }
 
             navigation.dispatch(

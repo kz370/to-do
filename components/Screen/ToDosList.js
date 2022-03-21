@@ -12,13 +12,13 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
         setToDo(toDosList.map(item => ({ ...item, checked: false })))
     }, [toDosList])
 
-    const checkItem = (key) => {
+    const checkItem = (id) => {
         setToDo(prev =>
-            (prev.map(item => item.key == key ? { ...item, checked: !item.checked } : item))
+            (prev.map(item => item.id == id ? { ...item, checked: !item.checked } : item))
         )
     }
     useEffect(() => {
-        const nextList = toDo.filter(item => item.checked).map(item => item.key)
+        const nextList = toDo.filter(item => item.checked).map(item => item.id)
         setChecked(nextList)
         if (nextList.length == 1) {
             setEditKey({ key: nextList[0], disabled: false })
@@ -28,26 +28,26 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
     }, [toDo])
 
     const deleteSelected = () => {
-        navigation.navigate('ToDo', { method: 'deleteMultiple', keys: checked })
+        navigation.navigate('ToDo', { method: 'delete', ids: checked })
     }
 
     const completeSelected = () => {
-        navigation.navigate('ToDo', { method: 'completeMultiple', keys: checked })
+        navigation.navigate('ToDo', { method: 'completeMultiple', ids: checked })
     }
     const checkAll = () => {
-        setToDo(prev => prev.map(item => ({ ...item, checked: !item.checked })))
+        setToDo(prev => prev.map(item => ({ ...item, checked: checked.length ? false : true })))
     }
 
     const editSelected = () => {
-        const item = toDo.filter(item => item.key == editKey.key)
-        navigation.navigate('EditToDo', { item: item[0], key: editKey })
+        const item = toDo.filter(item => item.checked)[0]
+        navigation.navigate('EditToDo', { item: item })
     }
     return (
         <View style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ paddingBottom: 40 }} style={[s.container, { backgroundColor: bgColor, flex: 1 }]}>
                 {toDo.map((item) =>
                 (
-                    <View key={item.key} style={[s.todo]}>
+                    <View key={item.id} style={[s.todo]}>
                         <View style={{ flex: 1, flexDirection: 'column' }}>
                             <Text style={[s.txt]}>
                                 {item.todo}
@@ -57,7 +57,7 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
                             </Text>
                         </View>
                         <View>
-                            <TouchableOpacity onPress={() => { checkItem(item.key) }}>
+                            <TouchableOpacity onPress={() => { checkItem(item.id) }}>
                                 <View style={[s.centerContent]}>
                                     <Feather name={item.checked ? 'check-square' : 'square'} size={24} color="black" />
                                 </View>
@@ -70,7 +70,7 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
             <View style={{ flex: .05, flexDirection: 'row', justifyContent: 'space-around', }}>
                 <TouchableOpacity style={[s.btns, { backgroundColor: !editKey.disabled ? "skyblue" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
                     <View style={[s.btnsTxtContainer]}>
-                        <Text style={{ marginHorizontal: 15 }}>
+                        <Text style={{ marginHorizontal: 5 }}>
                             edit
                         </Text>
                         <Text style={{ textAlign: 'center' }}>
@@ -80,32 +80,32 @@ export default function ToDo({ navigation, route, toDosList, bgColor }) {
                 </TouchableOpacity>
                 <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "red" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
                     <View style={[s.btnsTxtContainer]}>
-                        <Text style={{ marginHorizontal: 15 }}>
+                        <Text style={{ marginHorizontal: 5 }}>
                             Delete
                         </Text>
                         <Text style={{ textAlign: 'center' }}>
-                            <Feather name='trash-2' size={24} color="black" />
+                            <Feather name='trash-2' size={20} color="black" />
                         </Text>
                     </View>
                 </TouchableOpacity>
                 {route.name != 'complete' &&
                     <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "green" : '#E8E8E8' }]} onPress={completeSelected} disabled={editKey.disabled}>
                         <View style={[s.btnsTxtContainer]}>
-                            <Text style={{ marginHorizontal: 15, color: "black" }}>
+                            <Text style={{ marginHorizontal: 5, color: "black" }}>
                                 Complete
                             </Text>
                             <Text style={{ textAlign: 'center' }}>
-                                <Feather name='check-square' size={24} color="black" />
+                                <Feather name='check-square' size={20} color="black" />
                             </Text>
                         </View>
                     </TouchableOpacity>}
                 <TouchableOpacity style={[s.btns, { backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
                     <View style={[s.btnsTxtContainer]}>
-                        <Text style={{ marginHorizontal: 15, color: 'black' }}>
+                        <Text style={{ marginHorizontal: 5, color: 'black' }}>
                             {checked.length ? "Uncheck all" : "Check all"}
                         </Text>
                         <Text style={{ textAlign: 'center' }}>
-                            <Feather name='check' size={24} color="black" />
+                            <Feather name='check' size={20} color="black" />
                         </Text>
                     </View>
                 </TouchableOpacity>

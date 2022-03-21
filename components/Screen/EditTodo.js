@@ -20,7 +20,7 @@ export default function EditToDo({ navigation, route }) {
         const adjustString = (string) => {
             return +string < 10 ? `0${string}` : string
         }
-        const dateArray = splitDate(route.params.item.date.split('/'))
+        const dateArray = splitDate(route.params.item.date.split('-'))
         const newDate = new Date()
         const [date, setDate] = useState({
             day: dateArray['day'],
@@ -71,8 +71,8 @@ export default function EditToDo({ navigation, route }) {
         };
 
         const saveTodo = () => {
-            const newDate = `${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute} ${date.AmPm}`
-            navigation.navigate("ToDo", { method: 'update', newTodo: { key: route.params.item.key, date: newDate, todo: todo, status: status } })
+            const newDate = `${date.day}-${date.month}-${date.year} ${date.hour}:${date.minute} ${date.AmPm}`
+            navigation.navigate("ToDo", { method: 'update', newTodo: { id: route.params.item.id, date: newDate, todo: todo, status: status } })
         }
 
 
@@ -80,7 +80,7 @@ export default function EditToDo({ navigation, route }) {
             <View style={{ flex: 1 }}>
                 <View style={[s.container]}>
                     <View style={[s.date]}>
-                        <Text style={[s.txt]}>selected: {`${date.day}/${date.month}/${date.year}  ${date.hour > 12 ? adjustString(date.hour - 12) : date.hour}:${date.minute} ${date.AmPm}`}</Text>
+                        <Text style={[s.txt]}>selected: {`${date.day}-${date.month}-${date.year}  ${date.hour > 12 ? adjustString(date.hour - 12) : date.hour}:${date.minute} ${date.AmPm}`}</Text>
                         <View style={[s.dateChanger]}>
                             <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
                                 <View style={[s.centerContent]}>
