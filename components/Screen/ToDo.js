@@ -32,10 +32,19 @@ export default function ToDo({ navigation, route }) {
         useEffect(() => {
             const intervalId = setTimeout(() => {
                 db.transaction((tx) => {
-                    tx.executeSql(`select id from todos where status=? `, ['pending'], (_, { rows: { _array } }) => setOverDue(_array), (_, err) => { console.log("err=>", err) });
+                    tx.executeSql(`select id from todos where status=? and date>? `, ['pending', Date.now()], (_, { rows: { _array } }) => setOverDue(_array), (_, err) => { console.log("err=>", err) });
                 })
-                // console.log(overDue)
-            }, 1000)
+                if (overDue) {
+                    if (overDue.length) {
+                        const overdueTasks = `(${overDue.map(item => item.id).toString()})`
+                        setVal(true)
+                        db.transaction((tx) => {
+                            tx.executeSql(`update todos set status=?  where id in ${overdueTasks}`, ['overdue'], (_, { rows: { _array } }) => setOverDue(_array), (_, err) => { console.log("err=>", err) });
+                        })
+                    }
+                }
+            }, 60000)
+            setVal(false)
             return () => clearInterval(intervalId)
         })
 
@@ -59,7 +68,6 @@ export default function ToDo({ navigation, route }) {
                         })
                         setVal(true)
                     } if (route.params.method == 'update') {
-                        console.log(newTodo)
                         db.transaction((tx) => {
                             tx.executeSql(
                                 `update todos set todo=(?),description=(?), date=(?), status=(?) where id=(?);`,
