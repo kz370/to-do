@@ -1,107 +1,126 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Pressable, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function AddTodos({ navigation, route }) {
-    const adjustString = (string) => {
-        return +string < 10 ? `0${string}` : string
-    }
-    const newDate = new Date()
-    const [date, setDate] = useState({
-        day: adjustString(newDate.getDate()),
-        month: adjustString(newDate.getMonth() + 1),
-        year: newDate.getFullYear(),
-        hour: adjustString(newDate.getHours()),
-        minute: adjustString(newDate.getMinutes()),
-        AmPm: newDate.hour >= 12 ? "PM" : "AM"
-    });
-    const [mode, setMode] = useState('date');
-    const [show, setShow] = useState(false);
-    const [todo, setTodo] = useState('')
+    try {
+        const [date, setDate] = useState(null)
+        const [mode, setMode] = useState('date');
+        const [show, setShow] = useState(false);
+        const [todo, setTodo] = useState(null)
+        const [description, setDescription] = useState(null)
+        const [selectedDate, setSelectedDate] = useState(null)
+        const [validateForm, setValidateForm] = useState(true)
 
-    const onChange = (event, currentDate) => {
-        if (event.type === "set") {
-            if (mode === 'date' && currentDate > new Date(Date.now())) {
-                setDate(prev => {
-                    return {
-                        ...prev,
-                        day: adjustString(currentDate.getDate()),
-                        month: adjustString(currentDate.getMonth() + 1),
-                        year: currentDate.getFullYear(),
-                    }
-                });
-                showMode("time");
-            } else {
-                setDate(prev => {
-                    return {
-                        ...prev,
-                        hour: adjustString(currentDate.getHours()),
-                        minute: adjustString(currentDate.getMinutes()),
-                        AmPm: currentDate.hour >= 12 ? "PM" : "AM"
-                    }
-                });
-                setShow(false);
+        useEffect(() => {
+            if (todo && description && selectedDate) {
+                setValidateForm(false)
+                return
             }
+            setValidateForm(true)
+
+        })
+        const onChange = (event, currentDate) => {
+            if (event.type === "set") {
+                if (mode === 'date' && currentDate > new Date(Date.now())) {
+                    const [month, day, year] = currentDate.toLocaleDateString().split('/')
+                    const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
+                    setSelectedDate(dateString)
+                    setDate(currentDate.toLocaleDateString())
+                    showMode("time");
+                } else if (mode === 'time') {
+                    const [hr, mn] = currentDate.toLocaleTimeString().split(':')
+                    const timeString = `${hr % 12}:${mn} ${hr > 12 ? "pm" : "am"}`
+                    setSelectedDate(prev => (`${prev} ${timeString}`))
+                    const fullDate = `${date} ${currentDate.toLocaleTimeString()}`
+                    const timeStamp = Date.parse(fullDate)
+                    setDate(`${timeStamp}`)
+                    setShow(false);
+                }
+            }
+            setShow(false);
+        };
+        const showMode = (currentMode) => {
+            setShow(true);
+            setMode(currentMode);
+        };
+        const showDatepicker = () => {
+            showMode('date');
+        };
+        const sumbitForm = () => {
+            navigation.navigate("ToDo", { method: 'add', newTodo: {  date: date, todo: todo, description: description, status: "pending", checked: false } })
         }
-    };
 
-    const showMode = (currentMode) => {
-        setShow(true);
-        setMode(currentMode);
-    };
-
-    const showDatepicker = () => {
-        showMode('date');
-    };
-    const sumbitForm = () => {
-        const newDate = `${date.day}-${date.month}-${date.year} ${date.hour}:${date.minute} ${date.AmPm}`
-        navigation.navigate("ToDo", {method:'add', newTodo: {key:route.params.lastKey+1, date: newDate, todo: todo, status: "pending",checked:false } })
-    }
-
-
-    return (
-        <View style={{ flex: 1 }}>
-            <View style={[s.container]}>
-                <View style={[s.date]}>
-                    <Text style={[s.txt]}>selected: {`${date.day}/${date.month}/${date.year}  ${date.hour > 12 ? adjustString(date.hour - 12) : date.hour}:${date.minute} ${date.AmPm}`}</Text>
-                    <View style={[s.dateChanger]}>
-                        <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
-                            <View style={[s.centerContent]}>
-                                <Text style={[s.txt]}>
-                                    <FontAwesome name="calendar" size={25} color="skyblue" />
-                                </Text>
-                                <Text style={[s.txt]}>Select Date and time</Text>
+        return (
+            <KeyboardAvoidingView behavior='height' style={{ flex: 1, backgroundColor: 'white' }}>
+                <ScrollView style={{ flex: 1 }}>
+                    <View style={[s.container]}>
+                        <View style={[s.form]}>
+                            {selectedDate &&
+                                (
+                                    <Text style={[s.txt]}>{selectedDate}</Text>
+                                )
+                            }
+                            <View style={[s.dateChanger]}>
+                                <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
+                                    <View style={[s.centerContent]}>
+                                        <Text style={[s.txt]}>
+                                            <FontAwesome name="calendar" size={25} color="skyblue" />
+                                        </Text>
+                                        <Text style={[s.txt]}>Set Date and time</Text>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
-                    </View>
-                    {show && (
-                        <DateTimePicker
-                            value={new Date()}
-                            mode={mode}
-                            is24Hour={true}
-                            onChange={onChange}
-                        />
-                    )}
-                </View>
-                <View style={[s.todo]}>
-                    <Text style={[s.txt]}>Todo</Text>
-                    <TextInput
-                        value={todo}
-                        style={s.input}
-                        onChangeText={(e) => setTodo(e)}
-                        placeholder="add new todo"
+                            {show && (
+                                <DateTimePicker
+                                    value={new Date()}
+                                    mode={mode}
+                                    is24Hour={true}
+                                    onChange={onChange}
+                                />
+                            )}
+                        </View>
+                        <View style={[s.form]}>
+                            <Text style={[s.txt]}>Todo</Text>
+                            <TextInput
+                                value={todo}
+                                style={s.input}
+                                onChangeText={(e) => setTodo(e)}
+                                placeholder="add new todo"
 
-                    />
-                </View>
-                <Pressable style={s.submit} opacity={!todo ? .1 : 1} onPress={sumbitForm} disabled={!todo}>
-                    <Text style={[s.txt, { fontSize: 20 }]}>
-                        Add Todo
-                    </Text>
-                </Pressable>
+                            />
+                        </View>
+                        <View style={[s.form]}>
+                            <Text style={[s.txt]}>Description</Text>
+                            <TextInput
+                                multiline
+                                value={description}
+                                style={[s.input, { height: 100 }]}
+                                numberOfLines={4}
+                                onChangeText={(e) => setDescription(e)}
+                                placeholder="Description"
+
+                            />
+                        </View>
+                        <Pressable style={s.submit} opacity={validateForm ? .1 : 1} onPress={sumbitForm} disabled={validateForm}>
+                            <Text style={[s.txt, { fontSize: 20 }]}>
+                                Confirm
+                            </Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+                <View style={{ height: 80 }} />
+            </KeyboardAvoidingView>
+        )
+    } catch (err) {
+        console.log(err)
+        return (
+            <View>
+
             </View>
-        </View>
-    )
+        )
+    }
 }
 
 
@@ -116,14 +135,8 @@ const s = StyleSheet.create({
         flex: 1,
         padding: 15,
         backgroundColor: 'white',
-    },
-    date: {
-        margin: 10,
-        borderColor: 'skyblue',
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingVertical: 20,
-        paddingHorizontal: 15,
+        flexDirection: 'column',
+        justifyContent: 'center',
     },
     txt: {
         textAlign: "center",
@@ -135,20 +148,11 @@ const s = StyleSheet.create({
         flexDirection: 'row',
         margin: 20
     },
-    todo: {
-        margin: 10,
-        borderColor: 'skyblue',
-        borderWidth: 1,
-        borderRadius: 10,
+    form: {
+        backgroundColor: 'rgba(0, 0, 0, 0.11)',
+        marginBottom: 10,
         paddingVertical: 20,
         paddingHorizontal: 15,
-    },
-    input: {
-        paddingVertical: 5,
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'skyblue'
     },
     submit: {
         paddingHorizontal: 22,

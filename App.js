@@ -10,16 +10,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 
-
 export default function App() {
-  return (
-    <NavigationContainer >
-      <View style={[{ paddingTop: Constants.statusBarHeight }]}></View>
-      <Stack.Navigator>
-                <Stack.Screen name="ToDo" component={ToDo} />
-                <Stack.Screen name="AddToDo" component={AddToDo} />
-                <Stack.Screen name="EditToDo" component={EditToDo} />
+  try {
+    return (
+      <NavigationContainer >
+        <View style={[{ paddingTop: Constants.statusBarHeight }]}></View>
+        <Stack.Navigator>
+          <Stack.Screen name="ToDo" component={ToDo} />
+          <Stack.Screen name="AddToDo" component={AddToDo} />
+          <Stack.Screen name="EditToDo" component={EditToDo} />
         </Stack.Navigator>
-    </NavigationContainer>
-  );
+      </NavigationContainer>
+    );
+  } catch (err) {
+    console.log(err)
+    return (
+      <View>
+
+      </View>
+    )
+  }
 }
