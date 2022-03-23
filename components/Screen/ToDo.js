@@ -17,7 +17,7 @@ export default function ToDo({ navigation, route }) {
         useEffect(() => {
             if (val) {
                 db.transaction((tx) => {
-                    tx.executeSql(`create table if not exists todos (id integer primary key,todo text,date text,status text)`);
+                    tx.executeSql(`create table if not exists todos (id integer primary key,todo text,description text,date text,status text)`);
                 })
                 db.transaction((tx) => {
                     tx.executeSql(
