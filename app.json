@@ -26,7 +26,10 @@
         "backgroundColor": "#FFFFFF"
       },
       "useNextNotificationsApi": true,
-      "permissions": ["RECEIVE_BOOT_COMPLETED"]
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "package": "com.kz.dev370.todo"
     },
     "web": {
       "favicon": "./assets/favicon.png"

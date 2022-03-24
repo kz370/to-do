@@ -85,8 +85,8 @@ export default function ToDo({ navigation, route }) {
                         if (!arraysEqual(newToDoList, getToDoList)) {
                             if (overdueList.length) {
                                 await updateOverdue(newToDoList)
-                                overdueList.map(async(todo)=>{
-                                    await sendPushNotification(expoPushToken,{
+                                overdueList.map(async (todo) => {
+                                    await sendPushNotification(expoPushToken, {
                                         to: expoPushToken,
                                         sound: 'default',
                                         title: todo.todo,

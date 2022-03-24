@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Pressable, KeyboardAvoidingView ,Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { storeDataObject } from '../functions';
@@ -12,10 +12,11 @@ export default function AddTodos({ navigation, route }) {
         const [todo, setTodo] = useState(null)
         const [description, setDescription] = useState(null)
         const [selectedDate, setSelectedDate] = useState(null)
+        const [selectedTime, setSelectedTime] = useState(null)
         const [validateForm, setValidateForm] = useState(true)
 
         useEffect(() => {
-            if (todo && description && selectedDate) {
+            if (todo && description && selectedDate && date > Date.now()) {
                 setValidateForm(false)
                 return
             }
@@ -24,38 +25,40 @@ export default function AddTodos({ navigation, route }) {
         })
         const onChange = (event, currentDate) => {
             if (event.type === "set") {
-                if (mode === 'date' && currentDate > new Date(Date.now())) {
+                if (mode === 'date') {
                     const [month, day, year] = currentDate.toLocaleDateString().split('/')
                     const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
                     setSelectedDate(dateString)
                     setDate(currentDate.toLocaleDateString())
-                    showMode("time");
+                    setShow(false)
                 } else if (mode === 'time') {
                     const [hr, mn] = currentDate.toLocaleTimeString().split(':')
                     const timeString = `${hr % 12}:${mn} ${hr > 12 ? "pm" : "am"}`
-                    setSelectedDate(prev => (`${prev} ${timeString}`))
+                    setSelectedTime(timeString)
                     const fullDate = `${date} ${currentDate.toLocaleTimeString()}`
                     const timeStamp = Date.parse(fullDate)
-                    setDate(`${timeStamp}`)
-                    setShow(false);
+                    setDate(timeStamp)
+                    setShow(false)
                 }
             }
-            setShow(false);
+            if (event.type === "dismissed") {
+                setShow(false)
+            }
         };
         const showMode = (currentMode) => {
             setShow(true);
             setMode(currentMode);
         };
-        const showDatepicker = () => {
-            showMode('date');
+        const showDatepicker = (value) => {
+            showMode(value);
         };
         const sumbitForm = async () => {
             const newTodo = { date: date, todo: todo, description: description, status: "pending", checked: false }
             const msg = await storeDataObject(newTodo)
-            if(msg=== 'item exist'){
+            if (msg === 'item exist') {
                 Alert.alert(`${todo} task already exist`)
-            }else{
-                await navigation.navigate("ToDo",{rerender:true})
+            } else {
+                await navigation.navigate("ToDo", { rerender: true })
             }
         }
 
@@ -66,16 +69,24 @@ export default function AddTodos({ navigation, route }) {
                         <View style={[s.form]}>
                             {selectedDate &&
                                 (
-                                    <Text style={[s.txt]}>{selectedDate}</Text>
+                                    <Text style={[s.txt]}>{selectedDate}  {selectedTime}</Text>
                                 )
                             }
                             <View style={[s.dateChanger]}>
-                                <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
+                                <TouchableOpacity onPress={() => showDatepicker('date')} style={{ flex: 1 }}>
                                     <View style={[s.centerContent]}>
                                         <Text style={[s.txt]}>
                                             <FontAwesome name="calendar" size={25} color="skyblue" />
                                         </Text>
-                                        <Text style={[s.txt]}>Set Date and time</Text>
+                                        <Text style={[s.txt]}>Set Date</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => showDatepicker('time')} style={{ flex: 1 }}>
+                                    <View style={[s.centerContent]}>
+                                        <Text style={[s.txt]}>
+                                            <FontAwesome name="clock-o" size={25} color="skyblue" />
+                                        </Text>
+                                        <Text style={[s.txt]}>Set time</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -84,6 +95,7 @@ export default function AddTodos({ navigation, route }) {
                                     value={new Date()}
                                     mode={mode}
                                     onChange={onChange}
+                                    minimumDate={new Date(Date.now())}
                                 />
                             )}
                         </View>
@@ -109,11 +121,11 @@ export default function AddTodos({ navigation, route }) {
 
                             />
                         </View>
-                        <Pressable style={s.submit} opacity={validateForm ? .1 : 1} onPress={sumbitForm} disabled={validateForm}>
+                        <TouchableOpacity style={[s.submit, { backgroundColor: validateForm ? 'grey' : 'skyblue' }]} opacity={validateForm ? .1 : 1} onPress={sumbitForm} disabled={validateForm}>
                             <Text style={[s.txt, { fontSize: 20 }]}>
                                 Confirm
                             </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
                 <View style={{ height: 80 }} />

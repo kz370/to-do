@@ -85,7 +85,7 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                                         {item.todo}
                                     </Text>
                                     <Text style={[s.txt, { color: 'green' }]}>
-                                        {timeStampToDate(item.date)}
+                                        {timeStampToDate(item.date)[2]}
                                     </Text>
                                     <Text style={[s.txt, { color: 'green' }]}>
                                         {item.description}
@@ -101,17 +101,17 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                         )}
                     </ScrollView>
                     <View style={{ flex: .08, flexDirection: 'row', justifyContent: 'space-evenly' }}>
-                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: !editKey.disabled ? "rgb(0,123,255)" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
+                        <TouchableOpacity style={[{ flex: 1, justifyContent: 'center', backgroundColor: !editKey.disabled ? "rgb(0,123,255)" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
                             <View style={[s.btnsTxtContainer]}>
-                                <Text style={{ marginHorizontal: 5 , color: checked.length ? 'white' : "black"}}>
+                                <Text style={{ marginHorizontal: 5, color: editKey.disabled ? 'black' : "white" }}>
                                     edit
                                 </Text>
                                 <Text style={{ textAlign: 'center' }}>
-                                    <FontAwesome name="edit" size={20} color={checked.length ? 'white' : "black"} />
+                                    <FontAwesome name="edit" size={20} color={editKey.disabled ? 'black' : "white"} />
                                 </Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: checked.length ? "rgb(220,53,69)" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
+                        <TouchableOpacity style={[{ flex: 1, justifyContent: 'center', backgroundColor: checked.length ? "rgb(220,53,69)" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
                             <View style={[s.btnsTxtContainer]}>
                                 <Text style={{ marginHorizontal: 5, color: checked.length ? 'white' : "black" }}>
                                     Delete
@@ -122,7 +122,7 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                             </View>
                         </TouchableOpacity>
                         {route.name != 'complete' &&
-                            <TouchableOpacity style={[{flex:1,justifyContent:'center',backgroundColor: checked.length ? "#58A745" : '#E8E8E8' }]} onPress={completeSelected} disabled={!checked.length}>
+                            <TouchableOpacity style={[{ flex: 1, justifyContent: 'center', backgroundColor: checked.length ? "#58A745" : '#E8E8E8' }]} onPress={completeSelected} disabled={!checked.length}>
                                 <View style={[s.btnsTxtContainer]}>
                                     <Text style={{ marginHorizontal: 5, color: checked.length ? 'white' : "black" }}>
                                         Complete
@@ -132,9 +132,9 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                                     </Text>
                                 </View>
                             </TouchableOpacity>}
-                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
+                        <TouchableOpacity style={[{ flex: 1, justifyContent: 'center', backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
                             <View style={[s.btnsTxtContainer]}>
-                                <Text style={{ marginHorizontal: 5,  color: checked.length ? 'white' : "black"}}>
+                                <Text style={{ marginHorizontal: 5, color: checked.length ? 'white' : "black" }}>
                                     {checked.length ? "Uncheck all" : "Check all"}
                                 </Text>
                                 <Text style={{ textAlign: 'center' }}>

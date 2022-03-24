@@ -10,11 +10,9 @@ export const timeStampToDate = (date) => {
     const year = date.getFullYear();
     const [hr, mn] = date.toLocaleTimeString().split(':')
     const dateString = `${day}-${month}-${year}`
-    let hrs
-    hr > 12 ? (hrs = hr - 12) : hrs = hr;
-    hrs < 10 ? hrs = `0${hrs}` : null
-    const timeString = `${hrs}:${mn} ${hr > 12 ? "pm" : "am"}`
-    const fullDate = `${dateString} ${timeString}`
+    const timeString = `${hr}:${mn} ${hr > 12 ? "pm" : "am"}`
+    const fullDate = [dateString, timeString, `${dateString} ${timeString}`]
+
     return fullDate
 }
 /* end timestamp to date funtions */
@@ -90,7 +88,7 @@ export const storeDataObject = async (value) => {
                 return 'item exist'
             } else {
                 const jsonValue = JSON.stringify({ ...value, id: uuid() })
-                prevData = JSON.stringify(prevData).replace('[','').replace(']','')
+                prevData = JSON.stringify(prevData).replace('[', '').replace(']', '')
                 const data = `[${prevData},${jsonValue}]`
                 await AsyncStorage.setItem('@todos', data)
                 return 'item added'
@@ -166,7 +164,7 @@ export const getDataObject = async () => {
         console.log(e)
     }
 }
-/* end of storageAsync*/ 
+/* end of storageAsync*/
 
 export const clearStorage = async () => {
     try {

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Pressable, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { timeStampToDate,updateDataObject } from '../functions';
+import { timeStampToDate, updateDataObject } from '../functions';
 
 export default function EditToDo({ navigation, route }) {
     try {
@@ -12,12 +12,13 @@ export default function EditToDo({ navigation, route }) {
         const [show, setShow] = useState(false);
         const [todo, setTodo] = useState(route.params.item.todo)
         const [status, setStatus] = useState(route.params.item.status)
-        const [selectedDate, setSelectedDate] = useState(timeStampToDate(route.params.item.date))
+        const [selectedDate, setSelectedDate] = useState(timeStampToDate(route.params.item.date)[0])
+        const [selectedTime, setSelectedTime] = useState(timeStampToDate(route.params.item.date)[1])
         const [description, setDescription] = useState(route.params.item.description)
         const [validateForm, setValidateForm] = useState(true)
 
         useEffect(() => {
-            if (todo && description && selectedDate) {
+            if (todo && description && selectedDate && date > Date.now()) {
                 setValidateForm(false)
                 return
             }
@@ -27,22 +28,24 @@ export default function EditToDo({ navigation, route }) {
 
         const onChange = (event, currentDate) => {
             if (event.type === "set") {
-                if (mode === 'date' && currentDate > new Date(Date.now())) {
-                    console.log(currentDate)
+                if (mode === 'date') {
                     const [month, day, year] = currentDate.toLocaleDateString().split('/')
                     const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
                     setSelectedDate(dateString)
                     setDate(currentDate.toLocaleDateString())
-                    showMode("time");
+                    setShow(false)
                 } else if (mode === 'time') {
                     const [hr, mn] = currentDate.toLocaleTimeString().split(':')
                     const timeString = `${hr % 12}:${mn} ${hr > 12 ? "pm" : "am"}`
-                    setSelectedDate(prev => (`${prev} ${timeString}`))
+                    setSelectedDate(timeString)
                     const fullDate = `${date} ${currentDate.toLocaleTimeString()}`
                     const timeStamp = Date.parse(fullDate)
-                    setDate(`${timeStamp}`)
-                    setShow(false);
+                    setDate(timeStamp)
+                    setShow(false)
                 }
+            }
+            if (event.type === "dismissed") {
+                setShow(false)
             }
         };
 
@@ -51,14 +54,14 @@ export default function EditToDo({ navigation, route }) {
             setMode(currentMode);
         };
 
-        const showDatepicker = () => {
-            showMode('date');
+        const showDatepicker = (value) => {
+            showMode(value);
         };
 
         const saveTodo = async () => {
             const newTodo = { id: route.params.item.id, date: date, description: description, todo: todo, status: status }
             await updateDataObject(newTodo)
-            await navigation.navigate("ToDo",{rerender:true})
+            await navigation.navigate("ToDo", { rerender: true })
         }
 
 
@@ -67,14 +70,22 @@ export default function EditToDo({ navigation, route }) {
                 <ScrollView style={{ flex: 1 }}>
                     <View style={[s.container]}>
                         <View style={[s.form]}>
-                            <Text style={[s.txt]}>{selectedDate}</Text>
+                            <Text style={[s.txt]}>{selectedDate}  {selectedTime}</Text>
                             <View style={[s.dateChanger]}>
-                                <TouchableOpacity onPress={showDatepicker} style={{ flex: 1 }}>
+                                <TouchableOpacity onPress={() => showDatepicker('date')} style={{ flex: 1 }}>
                                     <View style={[s.centerContent]}>
                                         <Text style={[s.txt]}>
                                             <FontAwesome name="calendar" size={25} color="skyblue" />
                                         </Text>
-                                        <Text style={[s.txt]}>Select Date and time</Text>
+                                        <Text style={[s.txt]}>Set Date</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => showDatepicker('time')} style={{ flex: 1 }}>
+                                    <View style={[s.centerContent]}>
+                                        <Text style={[s.txt]}>
+                                            <FontAwesome name="clock-o" size={25} color="skyblue" />
+                                        </Text>
+                                        <Text style={[s.txt]}>Set time</Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -83,6 +94,7 @@ export default function EditToDo({ navigation, route }) {
                                     value={new Date()}
                                     mode={mode}
                                     onChange={onChange}
+                                    minimumDate={new Date(Date.now())}
                                 />
                             )}
                         </View>
@@ -119,11 +131,11 @@ export default function EditToDo({ navigation, route }) {
                                 <Picker.Item label="Overdue" value={"overdue"} />
                             </Picker>
                         </View>
-                        <Pressable style={s.submit} opacity={validateForm ? .1 : 1} onPress={saveTodo} disabled={validateForm}>
+                        <TouchableOpacity style={[s.submit, { backgroundColor: validateForm ? 'grey' : 'skyblue' }]} opacity={validateForm ? .1 : 1} onPress={saveTodo} disabled={validateForm}>
                             <Text style={[s.txt, { fontSize: 20 }]}>
                                 Save todo
                             </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                 </ScrollView>
                 <View style={{ height: 80 }} />
