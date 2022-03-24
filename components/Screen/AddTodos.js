@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Pressable, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Pressable, KeyboardAvoidingView ,Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { storeDataObject } from '../../Storage';
 
 export default function AddTodos({ navigation, route }) {
     try {
@@ -48,8 +49,14 @@ export default function AddTodos({ navigation, route }) {
         const showDatepicker = () => {
             showMode('date');
         };
-        const sumbitForm = () => {
-            navigation.navigate("ToDo", { method: 'add', newTodo: {  date: date, todo: todo, description: description, status: "pending", checked: false } })
+        const sumbitForm = async () => {
+            const newTodo = { date: date, todo: todo, description: description, status: "pending", checked: false }
+            const msg = await storeDataObject(newTodo)
+            if(msg=== 'item exist'){
+                Alert.alert(`${todo} task already exist`)
+            }else{
+                await navigation.navigate("ToDo",{rerender:true})
+            }
         }
 
         return (
@@ -76,7 +83,6 @@ export default function AddTodos({ navigation, route }) {
                                 <DateTimePicker
                                     value={new Date()}
                                     mode={mode}
-                                    is24Hour={true}
                                     onChange={onChange}
                                 />
                             )}

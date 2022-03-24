@@ -4,6 +4,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { timeStampToDate } from '../functions';
+import { updateDataObject } from '../../Storage';
 
 export default function EditToDo({ navigation, route }) {
     try {
@@ -55,8 +56,10 @@ export default function EditToDo({ navigation, route }) {
             showMode('date');
         };
 
-        const saveTodo = () => {
-            navigation.navigate("ToDo", { method: 'update', newTodo: { id: route.params.item.id, date: date, description: description, todo: todo, status: status } })
+        const saveTodo = async () => {
+            const newTodo = { id: route.params.item.id, date: date, description: description, todo: todo, status: status }
+            await updateDataObject(newTodo)
+            await navigation.navigate("ToDo",{rerender:true})
         }
 
 
@@ -80,7 +83,6 @@ export default function EditToDo({ navigation, route }) {
                                 <DateTimePicker
                                     value={new Date()}
                                     mode={mode}
-                                    is24Hour={false}
                                     onChange={onChange}
                                 />
                             )}

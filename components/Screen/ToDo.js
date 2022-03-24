@@ -2,110 +2,72 @@ import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { CommonActions } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
 import ToDoList from './ToDosList'
-import * as SQLite from 'expo-sqlite';
+import { getDataObject, updateOverdue } from '../../Storage';
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
-const db = SQLite.openDatabase('database.db');
+function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+    for (var i = 0; i < a.length; ++i) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
 
 export default function ToDo({ navigation, route }) {
     try {
         const [toDoList, setToDoList] = useState([])
         const [val, setVal] = useState(true)
-        const [overDue, setOverDue] = useState(null)
-        useEffect(() => {
+        const pending = toDoList.filter(toDo => toDo.status == 'pending')
+        const complete = toDoList.filter(toDo => toDo.status == 'complete')
+        const overdue = toDoList.filter(toDo => toDo.status == 'overdue')
+
+        useEffect(async () => {
             if (val) {
-                db.transaction((tx) => {
-                    tx.executeSql(`create table if not exists todos (id integer primary key,todo text,description text,date text,status text)`);
-                })
-                db.transaction((tx) => {
-                    tx.executeSql(
-                        `select * from todos;`, null, (_, { rows: { _array } }) => { setToDoList(_array) }, (_, err) => { console.log("err=>", err) }
-                    );
-                })
-                setToDoList(prev => (prev.map(todo => ({ ...todo, checked: false }))))
+                const list = await getDataObject()
+                setToDoList(prev => list ? list : prev)
                 setVal(false)
             }
         })
 
         useEffect(() => {
-            const intervalId = setTimeout(() => {
-                db.transaction((tx) => {
-                    tx.executeSql(`select id from todos where status=? and date>? `, ['pending', Date.now()], (_, { rows: { _array } }) => setOverDue(_array), (_, err) => { console.log("err=>", err) });
-                })
-                if (overDue) {
-                    if (overDue.length) {
-                        const overdueTasks = `(${overDue.map(item => item.id).toString()})`
-                        setVal(true)
-                        db.transaction((tx) => {
-                            tx.executeSql(`update todos set status=?  where id in ${overdueTasks}`, ['overdue'], (_, { rows: { _array } }) => setOverDue(_array), (_, err) => { console.log("err=>", err) });
+            const intervalId = setTimeout(async () => {
+                const list = await getDataObject()
+                const getToDoList = list ? list : []
+                if (getToDoList.length) {
+                    const getPendinglist = getToDoList.filter(todo => todo.status === 'pending')
+                    if (getPendinglist.length) {
+                        const newToDoList = getToDoList.map(todo => {
+                            if (todo.status === "pending" && todo.date < Date.now()) {
+                                return { ...todo, status: 'overdue' }
+                            } else {
+                                return todo
+                            }
                         })
+                        const overdueList = newToDoList.filter(item => item.status === 'overdue')
+                        arraysEqual(newToDoList, getToDoList)
+                        if (!arraysEqual(newToDoList, getToDoList)) {
+                            if (overdueList.length) {
+                                await updateOverdue(newToDoList)
+                                setVal(true)
+                            }
+                        }
                     }
                 }
-            }, 60000)
-            setVal(false)
+            }, 1000)
             return () => clearInterval(intervalId)
         })
 
-        const pending = toDoList.filter(toDo => toDo.status == 'pending')
-        const complete = toDoList.filter(toDo => toDo.status == 'complete')
-        const overdue = toDoList.filter(toDo => toDo.status == 'overdue')
 
-        useEffect(() => {
+        useEffect(async () => {
             if (route.params) {
-                if (route.params.newTodo) {
-                    const newTodo = route.params.newTodo
-                    if (route.params.method == 'add') {
-                        db.transaction((tx) => {
-                            tx.executeSql(
-                                `insert into todos (todo,description, date, status) values(?,?,?,?);`,
-                                [newTodo.todo, newTodo.description, newTodo.date, newTodo.status],
-                                false, (_, err) => {
-                                    console.log("err=>", err)
-                                }
-                            );
-                        })
-                        setVal(true)
-                    } if (route.params.method == 'update') {
-                        db.transaction((tx) => {
-                            tx.executeSql(
-                                `update todos set todo=(?),description=(?), date=(?), status=(?) where id=(?);`,
-                                [newTodo.todo, newTodo.description, newTodo.date, newTodo.status, newTodo.id],
-                                false, (_, err) => {
-                                    console.log("err=>", err)
-                                }
-                            );
-                        })
-                        setVal(true)
-                    }
-                }
-                else if (route.params.method == 'delete') {
-                    const idValues = `(${route.params.ids.toString()})`
-                    db.transaction((tx) => {
-                        tx.executeSql(
-                            `delete from todos where id in ${idValues};`,
-                            null,
-                            false, (_, err) => {
-                                console.log("err=>", err)
-                            }
-                        );
-                    })
-                    setVal(true)
-                } else if (route.params.method == 'completeMultiple') {
-                    const idValues = `(${route.params.ids.toString()})`
-                    db.transaction((tx) => {
-                        tx.executeSql(
-                            `update todos set status=(?) where id in ${idValues}`,
-                            ['complete'],
-                            false, (_, err) => {
-                                console.log("err=>", err)
-                            }
-                        );
-                    })
+                if (route.params.rerender) {
                     setVal(true)
                 }
-
                 navigation.dispatch(
                     CommonActions.navigate({
                         name: route.name,
@@ -128,7 +90,7 @@ export default function ToDo({ navigation, route }) {
                             title: `pending ${pending.length}`,
                             tabBarStyle: { backgroundColor: 'rgba(130, 115, 0, 0.45)' },
                         }}>
-                        {props => <ToDoList {...props} toDosList={pending} title="test" bgColor='rgba(130, 115, 0, 0.45)' />}
+                        {props => <ToDoList {...props} onSetVal={() => setVal(true)} toDosList={pending} title="test" bgColor='rgba(130, 115, 0, 0.45)' />}
                     </MaterialTopTab.Screen>
                     <MaterialTopTab.Screen
                         name="complete"
@@ -136,7 +98,7 @@ export default function ToDo({ navigation, route }) {
                             title: `complete ${complete.length}`,
                             tabBarStyle: { backgroundColor: 'rgba(0, 130, 18, 0.38)' },
                         }}>
-                        {props => <ToDoList {...props} toDosList={complete} bgColor='rgba(0, 130, 18, 0.38)' />}
+                        {props => <ToDoList {...props} onSetVal={() => setVal(true)} toDosList={complete} bgColor='rgba(0, 130, 18, 0.38)' />}
                     </MaterialTopTab.Screen>
                     <MaterialTopTab.Screen
                         name="overdue"
@@ -144,14 +106,19 @@ export default function ToDo({ navigation, route }) {
                             title: `overdue ${overdue.length}`,
                             tabBarStyle: { backgroundColor: 'rgba(119, 0, 0, 0.46)' },
                         }}>
-                        {props => <ToDoList {...props} toDosList={overdue} bgColor='rgba(119, 0, 0, 0.46)' />}
+                        {props => <ToDoList {...props} onSetVal={() => setVal(true)} toDosList={overdue} bgColor='rgba(119, 0, 0, 0.46)' />}
                     </MaterialTopTab.Screen>
                 </MaterialTopTab.Navigator>
 
-                <TouchableOpacity onPress={() => { navigation.navigate('AddToDo') }} disabled={false}>
-                    <Text style={{ fontSize: 20, textAlign: 'center', paddingHorizontal: 22, paddingVertical: 15 }}>
-                        New Task
-                    </Text>
+                <TouchableOpacity onPress={() => { navigation.navigate('AddToDo') }} style={{ backgroundColor: 'skyblue' }}>
+                    <View style={[{ flexDirection: 'row', paddingVertical: 15, justifyContent: 'center', alignItems: 'center' }]}>
+                        <Text style={{ marginHorizontal: 5, fontSize: 25, color: "black" }}>
+                            New task
+                        </Text>
+                        <Text style={{ textAlign: 'center' }}>
+                            <Feather name='plus' size={25} color="black" />
+                        </Text>
+                    </View>
                 </TouchableOpacity>
             </View>
         );
