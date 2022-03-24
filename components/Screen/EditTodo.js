@@ -37,7 +37,7 @@ export default function EditToDo({ navigation, route }) {
                 } else if (mode === 'time') {
                     const [hr, mn] = currentDate.toLocaleTimeString().split(':')
                     const timeString = `${hr % 12}:${mn} ${hr > 12 ? "pm" : "am"}`
-                    setSelectedDate(timeString)
+                    setSelectedTime(timeString)
                     const fullDate = `${date} ${currentDate.toLocaleTimeString()}`
                     const timeStamp = Date.parse(fullDate)
                     setDate(timeStamp)
