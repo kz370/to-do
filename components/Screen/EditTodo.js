@@ -3,8 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Pressa
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { timeStampToDate } from '../functions';
-import { updateDataObject } from '../../Storage';
+import { timeStampToDate,updateDataObject } from '../functions';
 
 export default function EditToDo({ navigation, route }) {
     try {

@@ -1,10 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { CommonActions } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync, sendPushNotification } from '../functions';
 import ToDoList from './ToDosList'
-import { getDataObject, updateOverdue } from '../../Storage';
+import { getDataObject, updateOverdue } from '../functions';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+    }),
+});
 
 const MaterialTopTab = createMaterialTopTabNavigator();
 
@@ -20,11 +30,34 @@ function arraysEqual(a, b) {
 
 export default function ToDo({ navigation, route }) {
     try {
+        const [expoPushToken, setExpoPushToken] = useState('');
+        const [notification, setNotification] = useState(false);
+        const notificationListener = useRef();
+        const responseListener = useRef();
         const [toDoList, setToDoList] = useState([])
         const [val, setVal] = useState(true)
         const pending = toDoList.filter(toDo => toDo.status == 'pending')
         const complete = toDoList.filter(toDo => toDo.status == 'complete')
         const overdue = toDoList.filter(toDo => toDo.status == 'overdue')
+
+        useEffect(() => {
+            registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+
+            // This listener is fired whenever a notification is received while the app is foregrounded
+            notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+                setNotification(notification);
+            });
+
+            // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+            responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+                navigation.navigate('overdue')
+            });
+
+            return () => {
+                Notifications.removeNotificationSubscription(notificationListener.current);
+                Notifications.removeNotificationSubscription(responseListener.current);
+            };
+        }, []);
 
         useEffect(async () => {
             if (val) {
@@ -41,7 +74,7 @@ export default function ToDo({ navigation, route }) {
                 if (getToDoList.length) {
                     const getPendinglist = getToDoList.filter(todo => todo.status === 'pending')
                     if (getPendinglist.length) {
-                        const newToDoList = getToDoList.map(todo => {
+                        const newToDoList = getToDoList.map((todo) => {
                             if (todo.status === "pending" && todo.date < Date.now()) {
                                 return { ...todo, status: 'overdue' }
                             } else {
@@ -49,16 +82,23 @@ export default function ToDo({ navigation, route }) {
                             }
                         })
                         const overdueList = newToDoList.filter(item => item.status === 'overdue')
-                        arraysEqual(newToDoList, getToDoList)
                         if (!arraysEqual(newToDoList, getToDoList)) {
                             if (overdueList.length) {
                                 await updateOverdue(newToDoList)
+                                overdueList.map(async(todo)=>{
+                                    await sendPushNotification(expoPushToken,{
+                                        to: expoPushToken,
+                                        sound: 'default',
+                                        title: todo.todo,
+                                        body: `You have missed a task \n${todo.description}`,
+                                    })
+                                })
                                 setVal(true)
                             }
                         }
                     }
                 }
-            }, 1000)
+            }, 30000)
             return () => clearInterval(intervalId)
         })
 

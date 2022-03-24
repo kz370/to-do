@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, TouchableOpacity, Alert } from 'reac
 import { FontAwesome } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import { timeStampToDate } from '../functions';
-import { updateDataObject, deleteDataObject } from '../../Storage';
+import { updateDataObject, deleteDataObject } from '../functions';
 import { s } from '../Style'
 
 export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }) {
@@ -100,41 +100,41 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                         )
                         )}
                     </ScrollView>
-                    <View style={{ flex: .08, flexDirection: 'row', justifyContent: 'space-around', marginBottom: 1 }}>
-                        <TouchableOpacity style={[s.btns, { backgroundColor: !editKey.disabled ? "skyblue" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
+                    <View style={{ flex: .08, flexDirection: 'row', justifyContent: 'space-evenly' }}>
+                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: !editKey.disabled ? "rgb(0,123,255)" : '#E8E8E8' }]} onPress={editSelected} disabled={editKey.disabled}>
                             <View style={[s.btnsTxtContainer]}>
-                                <Text style={{ marginHorizontal: 5 }}>
+                                <Text style={{ marginHorizontal: 5 , color: checked.length ? 'white' : "black"}}>
                                     edit
                                 </Text>
                                 <Text style={{ textAlign: 'center' }}>
-                                    <FontAwesome name="edit" size={20} color="black" />
+                                    <FontAwesome name="edit" size={20} color={checked.length ? 'white' : "black"} />
                                 </Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "red" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
+                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: checked.length ? "rgb(220,53,69)" : '#E8E8E8' }]} onPress={deleteSelected} disabled={!checked.length}>
                             <View style={[s.btnsTxtContainer]}>
-                                <Text style={{ marginHorizontal: 5 }}>
+                                <Text style={{ marginHorizontal: 5, color: checked.length ? 'white' : "black" }}>
                                     Delete
                                 </Text>
                                 <Text style={{ textAlign: 'center' }}>
-                                    <Feather name='trash-2' size={20} color="black" />
+                                    <Feather name='trash-2' size={20} color={checked.length ? 'white' : "black"} />
                                 </Text>
                             </View>
                         </TouchableOpacity>
                         {route.name != 'complete' &&
-                            <TouchableOpacity style={[s.btns, { backgroundColor: checked.length ? "green" : '#E8E8E8' }]} onPress={completeSelected} disabled={!checked.length}>
+                            <TouchableOpacity style={[{flex:1,justifyContent:'center',backgroundColor: checked.length ? "#58A745" : '#E8E8E8' }]} onPress={completeSelected} disabled={!checked.length}>
                                 <View style={[s.btnsTxtContainer]}>
-                                    <Text style={{ marginHorizontal: 5, color: "black" }}>
+                                    <Text style={{ marginHorizontal: 5, color: checked.length ? 'white' : "black" }}>
                                         Complete
                                     </Text>
                                     <Text style={{ textAlign: 'center' }}>
-                                        <Feather name='check-square' size={20} color="black" />
+                                        <Feather name='check-square' size={20} color={checked.length ? 'white' : "black"} />
                                     </Text>
                                 </View>
                             </TouchableOpacity>}
-                        <TouchableOpacity style={[s.btns, { backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
+                        <TouchableOpacity style={[{flex:1,justifyContent:'center', backgroundColor: toDo.length ? '#BEBEBE' : '#E8E8E8' }]} onPress={checkAll} disabled={!toDo.length}>
                             <View style={[s.btnsTxtContainer]}>
-                                <Text style={{ marginHorizontal: 5, color: 'black' }}>
+                                <Text style={{ marginHorizontal: 5,  color: checked.length ? 'white' : "black"}}>
                                     {checked.length ? "Uncheck all" : "Check all"}
                                 </Text>
                                 <Text style={{ textAlign: 'center' }}>

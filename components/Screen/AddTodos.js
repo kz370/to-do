@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Pressable, KeyboardAvoidingView ,Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { storeDataObject } from '../../Storage';
+import { storeDataObject } from '../functions';
 
 export default function AddTodos({ navigation, route }) {
     try {
