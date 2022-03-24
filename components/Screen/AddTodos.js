@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { storeDataObject } from '../functions';
+import { storeDataObject, timeStampToDate } from '../functions';
 
 export default function AddTodos({ navigation, route }) {
     try {
@@ -11,8 +11,8 @@ export default function AddTodos({ navigation, route }) {
         const [show, setShow] = useState(false);
         const [todo, setTodo] = useState(null)
         const [description, setDescription] = useState(null)
-        const [selectedDate, setSelectedDate] = useState(null)
-        const [selectedTime, setSelectedTime] = useState(null)
+        const [selectedDate, setSelectedDate] = useState(timeStampToDate(Date.now())[0])
+        const [selectedTime, setSelectedTime] = useState(timeStampToDate(Date.now())[1])
         const [validateForm, setValidateForm] = useState(true)
 
         useEffect(() => {
@@ -67,11 +67,7 @@ export default function AddTodos({ navigation, route }) {
                 <ScrollView style={{ flex: 1 }}>
                     <View style={[s.container]}>
                         <View style={[s.form]}>
-                            {selectedDate &&
-                                (
-                                    <Text style={[s.txt]}>{selectedDate}  {selectedTime}</Text>
-                                )
-                            }
+                            <Text style={[s.txt]}>{selectedDate}  {selectedTime}</Text>
                             <View style={[s.dateChanger]}>
                                 <TouchableOpacity onPress={() => showDatepicker('date')} style={{ flex: 1 }}>
                                     <View style={[s.centerContent]}>
