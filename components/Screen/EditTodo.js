@@ -18,33 +18,34 @@ export default function EditToDo({ navigation, route }) {
         const [validateForm, setValidateForm] = useState(true)
 
         useEffect(() => {
+            console.log(date - Date.now())
             if (todo && description && selectedDate && date > Date.now()) {
                 setValidateForm(false)
-                return
+                return true
             }
             setValidateForm(true)
 
         })
 
         const onChange = (event, currentDate) => {
-            if (event.type === "set") {
-                if (mode === 'date') {
-                    const [month, day, year] = currentDate.toLocaleDateString().split('/')
-                    const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
-                    setSelectedDate(dateString)
-                    setDate(currentDate.toLocaleDateString())
-                    setShow(false)
-                } else if (mode === 'time') {
-                    const [hr, mn] = currentDate.toLocaleTimeString().split(':')
-                    const timeString = `${hr % 12}:${mn} ${hr > 12 ? "pm" : "am"}`
-                    setSelectedTime(timeString)
-                    const fullDate = `${date} ${currentDate.toLocaleTimeString()}`
-                    const timeStamp = Date.parse(fullDate)
-                    setDate(timeStamp)
-                    setShow(false)
-                }
-            }
             if (event.type === "dismissed") {
+                setShow(false)
+                return
+            }
+            if (mode === 'date') {
+                const [month, day, year] = currentDate.toLocaleDateString().split('/')
+                const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
+                setSelectedDate(dateString)
+                setDate(currentDate.toLocaleDateString())
+                setShow(false)
+            } else if (mode === 'time') {
+                const [hr, mn] = currentDate.toLocaleTimeString().split(':')
+                const timeString = `${hr === "00" ? "12" : hr}:${mn} ${hr > 12 ? "pm" : "am"}`
+                setSelectedTime(timeString)
+                const datString = new Date(date).toLocaleDateString()
+                const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`
+                const timeStamp = Date.parse(fullDate)
+                setDate(timeStamp)
                 setShow(false)
             }
         };

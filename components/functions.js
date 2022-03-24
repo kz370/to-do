@@ -10,7 +10,7 @@ export const timeStampToDate = (date) => {
     const year = date.getFullYear();
     const [hr, mn] = date.toLocaleTimeString().split(':')
     const dateString = `${day}-${month}-${year}`
-    const timeString = `${hr}:${mn} ${hr > 12 ? "pm" : "am"}`
+    const timeString = `${hr==="00"?"12":hr}:${mn} ${hr > 12 ? "pm" : "am"}`
     const fullDate = [dateString, timeString, `${dateString} ${timeString}`]
 
     return fullDate
