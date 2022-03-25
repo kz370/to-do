@@ -39,8 +39,8 @@ export default function EditToDo({ navigation, route }) {
             } else if (mode === 'time') {
                 const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
-                const dateString = timeStampToDate(date)[0]
-                const fullDate = `${dateString} ${currentDate.toLocaleTimeString()}`
+                const datString = new Date(date).toLocaleDateString()
+                const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`
                 const timeStamp = Date.parse(fullDate)
                 setDate(timeStamp)
                 setShow(false)

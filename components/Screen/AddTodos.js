@@ -37,8 +37,8 @@ export default function AddTodos({ navigation, route }) {
             } else if (mode === 'time') {
                 const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
-                const datString = new Date(date).toLocaleDateString()
-                const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`
+                const dateString = new Date(date).toLocaleDateString()
+                const fullDate = `${dateString} ${currentDate.toLocaleTimeString()}`
                 const timeStamp = Date.parse(fullDate)
                 setDate(timeStamp)
                 setShow(false)
