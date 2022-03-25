@@ -30,14 +30,12 @@ export default function AddTodos({ navigation, route }) {
                 return
             }
             if (mode === 'date') {
-                const [month, day, year] = currentDate.toLocaleDateString().split('/')
-                const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
+                const dateString = timeStampToDate(Date.parse(currentDate))[0]
                 setSelectedDate(dateString)
                 setDate(currentDate.toLocaleDateString())
                 setShow(false)
             } else if (mode === 'time') {
-                const [hr, mn] = currentDate.toLocaleTimeString().split(':')
-                const timeString = `${hr === "00" ? "12" : hr}:${mn} ${hr > 12 ? "pm" : "am"}`
+                const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
                 const datString = new Date(date).toLocaleDateString()
                 const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`

@@ -18,7 +18,6 @@ export default function EditToDo({ navigation, route }) {
         const [validateForm, setValidateForm] = useState(true)
 
         useEffect(() => {
-            console.log(date - Date.now())
             if (todo && description && selectedDate && date > Date.now()) {
                 setValidateForm(false)
                 return true
@@ -33,17 +32,15 @@ export default function EditToDo({ navigation, route }) {
                 return
             }
             if (mode === 'date') {
-                const [month, day, year] = currentDate.toLocaleDateString().split('/')
-                const dateString = `${day}-${month}-${year.length > 2 ? year : `20${year}`}`
+                const dateString = timeStampToDate(Date.parse(currentDate))[0]
                 setSelectedDate(dateString)
                 setDate(currentDate.toLocaleDateString())
                 setShow(false)
             } else if (mode === 'time') {
-                const [hr, mn] = currentDate.toLocaleTimeString().split(':')
-                const timeString = `${hr === "00" ? "12" : hr}:${mn} ${hr > 12 ? "pm" : "am"}`
+                const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
-                const datString = new Date(date).toLocaleDateString()
-                const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`
+                const dateString = timeStampToDate(date)[0]
+                const fullDate = `${dateString} ${currentDate.toLocaleTimeString()}`
                 const timeStamp = Date.parse(fullDate)
                 setDate(timeStamp)
                 setShow(false)
