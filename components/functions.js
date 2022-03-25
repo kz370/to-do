@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import 'react-native-get-random-values'
 import { v4 as uuid } from 'uuid';
 
 /* start timestamp to date funtions */
@@ -79,6 +80,7 @@ export async function registerForPushNotificationsAsync() {
 // store data
 export const storeDataObject = async (value) => {
     try {
+        console.log(uuid())
         let prevData = prevData = await AsyncStorage.getItem('@todos')
         let exist = false
         if (prevData) {
