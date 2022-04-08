@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from "@khaledz370/datetimepicker-react-native";
 import { Picker } from '@react-native-picker/picker';
 import { timeStampToDate, updateDataObject } from '../functions';
 
 export default function EditToDo({ navigation, route }) {
     try {
-        const [date, setDate] = useState(route.params.item.date);
+        const prevDate = Date.parse(route.params.item.date)
+        const [date, setDate] = useState(new Date(prevDate));
         const [mode, setMode] = useState('date');
         const [show, setShow] = useState(false);
         const [todo, setTodo] = useState(route.params.item.todo)
         const [status, setStatus] = useState(route.params.item.status)
-        const [selectedDate, setSelectedDate] = useState(timeStampToDate(route.params.item.date)[0])
-        const [selectedTime, setSelectedTime] = useState(timeStampToDate(route.params.item.date)[1])
+        const [selectedDate, setSelectedDate] = useState(timeStampToDate(prevDate)[0])
+        const [selectedTime, setSelectedTime] = useState(timeStampToDate(prevDate)[1])
         const [description, setDescription] = useState(route.params.item.description)
         const [validateForm, setValidateForm] = useState(true)
 
@@ -26,23 +27,17 @@ export default function EditToDo({ navigation, route }) {
 
         })
 
-        const onChange = (event, currentDate) => {
-            if (event.type === "dismissed") {
-                setShow(false)
-                return
-            }
+        const onChange = (currentDate) => {
             if (mode === 'date') {
                 const dateString = timeStampToDate(Date.parse(currentDate))[0]
                 setSelectedDate(dateString)
-                setDate(currentDate.toLocaleDateString())
+                setDate(new Date(`${currentDate.getMonth()+1}/${currentDate.getDate()}/${currentDate.getFullYear()} ${date.toLocaleTimeString()} `))
                 setShow(false)
             } else if (mode === 'time') {
                 const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
-                const datString = new Date(date).toLocaleDateString()
-                const fullDate = `${datString} ${currentDate.toLocaleTimeString()}`
-                const timeStamp = Date.parse(fullDate)
-                setDate(timeStamp)
+                const dateString = `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${currentDate.toLocaleTimeString()}`
+                setDate(new Date(dateString))
                 setShow(false)
             }
         };
@@ -88,12 +83,14 @@ export default function EditToDo({ navigation, route }) {
                                 </TouchableOpacity>
                             </View>
                             {show && (
-                                <DateTimePicker
-                                    value={new Date()}
-                                    mode={mode}
-                                    onChange={onChange}
-                                    minimumDate={new Date(Date.now())}
-                                />
+                                <DatePicker
+                                date={date}
+                                mode={mode}
+                                onConfirm={e=>onChange(e)}
+                                onCancel={()=>setShow(false)}
+                                startDate={new Date(Date.now())}
+                                hrs12={true}
+                            />
                             )}
                         </View>
                         <View style={[s.form]}>

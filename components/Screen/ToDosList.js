@@ -85,7 +85,7 @@ export default function ToDo({ navigation, route, toDosList, bgColor, onSetVal }
                                         {item.todo}
                                     </Text>
                                     <Text style={[s.txt, { color: 'green' }]}>
-                                        {timeStampToDate(item.date)[2]}
+                                        {timeStampToDate(Date.parse(item.date))[2]}
                                     </Text>
                                     <Text style={[s.txt, { color: 'green' }]}>
                                         {item.description}

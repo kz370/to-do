@@ -6,15 +6,18 @@ import { v4 as uuid } from 'uuid';
 
 /* start timestamp to date funtions */
 export const timeStampToDate = (date) => {
-    date = new Date(+date)
-    const [month, day] = date.toLocaleDateString().split('/')
-    const year = date.getFullYear();
-    const [hr, mn] = date.toLocaleTimeString().split(':')
-    const dateString = `${day}-${month}-${year}`
-    const timeString = `${hr%12>9?hr%12:`0${hr%12}`}:${mn} ${hr > 12 ? "pm" : "am"}`
-    const fullDate = [dateString, timeString, `${dateString} ${timeString}`]
-
-    return fullDate
+    try{
+        date = new Date(+date)
+        const [year,month, day] = [date.getFullYear(),date.getMonth()+1,date.getDate()]
+        const [hr, mn] = date.toLocaleTimeString().split(':')
+        const dateString = `${day}-${month}-${year}`
+        const timeString = `${hr%12>9?hr%12:`0${hr%12}`}:${mn} ${hr > 12 ? "pm" : "am"}`
+        const fullDate = [dateString, timeString, `${dateString} ${timeString}`]
+    
+        return fullDate
+        }catch(e){
+            return e
+        }
 }
 /* end timestamp to date funtions */
 

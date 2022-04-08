@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from "@khaledz370/datetimepicker-react-native";
 import { storeDataObject, timeStampToDate } from '../functions';
 
 export default function AddTodos({ navigation, route }) {
     try {
-        const [date, setDate] = useState(Date.now())
+        const [date, setDate] = useState(new Date(Date.now()))
         const [mode, setMode] = useState('date');
         const [show, setShow] = useState(false);
         const [todo, setTodo] = useState(null)
@@ -24,23 +24,17 @@ export default function AddTodos({ navigation, route }) {
             setValidateForm(true)
 
         })
-        const onChange = (event, currentDate) => {
-            if (event.type === "dismissed") {
-                setShow(false)
-                return
-            }
+        const onChange = (currentDate) => {
             if (mode === 'date') {
                 const dateString = timeStampToDate(Date.parse(currentDate))[0]
                 setSelectedDate(dateString)
-                setDate(currentDate.toLocaleDateString())
+                setDate(new Date(`${currentDate.getMonth()+1}/${currentDate.getDate()}/${currentDate.getFullYear()} ${date.toLocaleTimeString()} `))
                 setShow(false)
             } else if (mode === 'time') {
                 const timeString = timeStampToDate(Date.parse(currentDate))[1]
                 setSelectedTime(timeString)
-                const dateString = new Date(date).toLocaleDateString()
-                const fullDate = `${dateString} ${currentDate.toLocaleTimeString()}`
-                const timeStamp = Date.parse(fullDate)
-                setDate(timeStamp)
+                const dateString = `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()} ${currentDate.toLocaleTimeString()}`
+                setDate(new Date(dateString))
                 setShow(false)
             }
         };
@@ -60,7 +54,6 @@ export default function AddTodos({ navigation, route }) {
                 await navigation.navigate("ToDo", { rerender: true })
             }
         }
-
         return (
             <KeyboardAvoidingView behavior='height' style={{ flex: 1, backgroundColor: 'white' }}>
                 <ScrollView style={{ flex: 1 }}>
@@ -86,11 +79,13 @@ export default function AddTodos({ navigation, route }) {
                                 </TouchableOpacity>
                             </View>
                             {show && (
-                                <DateTimePicker
-                                    value={new Date()}
+                                <DatePicker
+                                    date={date}
                                     mode={mode}
-                                    onChange={onChange}
-                                    minimumDate={new Date(Date.now())}
+                                    onConfirm={e=>onChange(e)}
+                                    onCancel={() => setShow(false)}
+                                    startDate={new Date(Date.now())}
+                                    hrs12={true}
                                 />
                             )}
                         </View>
